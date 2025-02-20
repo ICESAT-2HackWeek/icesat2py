@@ -4,7 +4,7 @@ description = "Python tools for obtaining and working with ICESat-2 data"
 license = {file = "LICENSE"}
 readme = "README.rst"
 
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dynamic = ["version", "dependencies"]
 
 authors = [
@@ -20,8 +20,6 @@ classifiers=[
   "License :: OSI Approved :: BSD License",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
@@ -128,7 +126,7 @@ force-sort-within-sections = true
 
 
 [tool.pyright]
-pythonVersion = "3.9"
+pythonVersion = "3.11"
 # DevGoal: "strict"
 typeCheckingMode = "standard"
 include = [
