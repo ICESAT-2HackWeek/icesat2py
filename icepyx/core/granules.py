@@ -20,7 +20,6 @@ import icepyx.core.exceptions
 from icepyx.core.types import (
     CMRParams,
     EGIRequiredParamsDownload,
-    EGIRequiredParamsSearch,
 )
 from icepyx.core.urls import DOWNLOAD_BASE_URL, GRANULE_SEARCH_BASE_URL, ORDER_BASE_URL
 
@@ -181,7 +180,6 @@ class Granules(EarthdataAuthMixin):
     def get_avail(
         self,
         CMRparams: CMRParams,
-        reqparams: EGIRequiredParamsSearch,
         cloud: bool = False,
     ):
         """
@@ -192,9 +190,6 @@ class Granules(EarthdataAuthMixin):
         ----------
         CMRparams :
             Dictionary of properly formatted CMR search parameters.
-        reqparams :
-            Dictionary of properly formatted parameters required for searching, ordering,
-            or downloading from NSIDC.
         cloud :
             CMR metadata is always collected for the cloud system.
 
@@ -212,9 +207,7 @@ class Granules(EarthdataAuthMixin):
         query.Query.avail_granules
         """
 
-        assert CMRparams is not None and reqparams is not None, (
-            "Missing required input parameter dictionaries"
-        )
+        assert CMRparams is not None, "Missing required input parameter dictionaries"
 
         # if not hasattr(self, 'avail'):
         self.avail = []
@@ -223,11 +216,7 @@ class Granules(EarthdataAuthMixin):
         # note we should also check for errors whenever we ping NSIDC-API -
         # make a function to check for errors
 
-        params = apifmt.combine_params(
-            CMRparams,
-            {k: reqparams[k] for k in ["short_name", "version", "page_size"]},
-            {"provider": "NSIDC_CPRD"},
-        )
+        params = CMRparams
 
         cmr_search_after = None
 
@@ -324,7 +313,7 @@ class Granules(EarthdataAuthMixin):
         query.Query.order_granules
         """
 
-        self.get_avail(CMRparams, reqparams)
+        self.get_avail(CMRparams)
 
         if subset is False:
             request_params = apifmt.combine_params(
@@ -513,10 +502,6 @@ class Granules(EarthdataAuthMixin):
         See Also
         --------
         query.Query.download_granules
-        """
-        """
-        extract : boolean, default False
-            Unzip the downloaded granules.
         """
 
         # DevNote: this will replace any existing orderIDs with the saved list
