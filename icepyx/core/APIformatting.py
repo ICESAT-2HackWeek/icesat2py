@@ -426,6 +426,9 @@ class Parameters(Generic[T]):
         else:
             self._check_valid_keys()
 
+        if "concept_id" in kwargs:
+            self._fmted_keys.update({"concept_id": kwargs["concept_id"]})
+
         if self.partype == "required":
             if not self._reqtype:
                 raise TypeGuardException

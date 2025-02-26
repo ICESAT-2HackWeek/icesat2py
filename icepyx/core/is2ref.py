@@ -12,6 +12,14 @@ from icepyx.core.urls import COLLECTION_SEARCH_BASE_URL, EGI_BASE_URL
 # ICESat-2 specific reference functions
 
 
+def _get_concept_id(product, version):
+    collections = earthaccess.search_datasets(
+        short_name=product, version=version, cloud_hosted=True
+    )
+    if collections:
+        return collections[0].concept_id()
+
+
 def _validate_product(product):
     """
     Confirm a valid ICESat-2 product was specified
