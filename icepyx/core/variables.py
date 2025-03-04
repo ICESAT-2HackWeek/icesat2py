@@ -1,3 +1,4 @@
+from itertools import chain
 import os
 
 import numpy as np
@@ -11,11 +12,9 @@ import icepyx.core.validate_inputs as val
 
 def list_of_dict_vals(input_dict):
     """
-    Create a single list of the values from a dictionary.
+    Create a single flattened list of all values from a dictionary.
     """
-    wanted_list = []
-    [wanted_list.append(val) for vals in input_dict.values() for val in vals]
-    return wanted_list
+    return list(chain.from_iterable(input_dict.values()))
 
 
 # REFACTOR: class needs better docstrings
