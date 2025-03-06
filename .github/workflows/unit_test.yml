@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.13"] #NOTE: min and max Python versions supported by icepyx
+        python-version: ["3.11", "3.13"] #NOTE: min and max Python versions supported by icepyx
 
     steps:
       - uses: "actions/checkout@v4"
@@ -33,9 +33,12 @@ jobs:
           python-version: "${{ matrix.python-version }}"
 
       - name: "Run tests"
+        env:
+          EARTHDATA_PASSWORD: "${{ secrets.EARTHDATA_PASSWORD }}"
+          EARTHDATA_USERNAME: ${{ secrets.EARTHDATA_USERNAME }}
+          NSIDC_LOGIN: "${{ secrets.EARTHDATA_PASSWORD }}" # remove this
         run: |
-          pytest icepyx/ --verbose --cov app \
-            --ignore=icepyx/tests/integration
+          pytest icepyx/tests/unit --verbose --cov app
 
       - name: "Upload coverage report"
         uses: "codecov/codecov-action@v5.4.0"
