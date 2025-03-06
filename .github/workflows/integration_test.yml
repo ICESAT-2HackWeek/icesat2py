@@ -3,32 +3,72 @@ name: "Integration test"
 #       don't distinguish between unit and integration tests yet.
 
 on:
-  push:
-    branches:
-      - "main"  # Releases
-      - "development"  # Feature PR merges
   pull_request:
     branches:
-      - "main"  # Release PRs
-  workflow_dispatch:
-    inputs:
-      ref:
-        description: "The ref to test"
-        type: "string"
+      - "main"         # Release PRs
+      - "development"  # Feature PRs
+  pull_request_target:
+    branches:
+      - "main"         # Release PRs
+      - "development"  # Feature PRs
+  push:
+    branches:
+      - "main"         # Releases
+      - "development"  # Feature PR merges
+
+
+# When this workflow is queued, automatically cancel any previous running
+# or pending jobs from the same branch
+concurrency:
+  group: "integration-tests-${{ github.ref }}"
+  cancel-in-progress: true
 
 
 jobs:
   test:
     name: "Integration test"
-    # Do not run on PRs from forks:
-    if: "${{ !github.event.pull_request.head.repo.fork }}"
+    # This condition prevents DUPLICATE attempts to run integration tests for
+    # PRs originating from forks.
+    #
+    # When a PR originates from a fork, both a pull_request and a
+    # pull_request_target event are triggered.  This means that without a
+    # condition, GitHub will attempt to run integration tests TWICE, once for
+    # each event.
+    #
+    # To prevent this, this condition ensures that integration tests are run
+    # in only ONE of the following cases:
+    #
+    #   1. The event is NOT a pull_request.  This covers the case when the event
+    #      is a pull_request_target (i.e., a PR from a fork), as well as all
+    #      other cases listed in the "on" block at the top of this file.
+    #   2. The event IS a pull_request AND the base repo and head repo are the
+    #      same (i.e., the PR is NOT from a fork).
+    if: github.event_name != 'pull_request' || github.event.pull_request.base.repo.full_name == github.event.pull_request.head.repo.full_name
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: "actions/checkout@v4"
+      - name: "Fetch user permission"
+        id: "permission"
+        uses: "actions-cool/check-user-permission@v2"
         with:
-          fetch-depth: 0
-          ref: "${{ inputs.ref }}"
+          require: "write"
+          username: "${{ github.triggering_actor }}"
+
+      - name: "Check user permission"
+        if: "${{ steps.permission.outputs.require-result == 'false' }}"
+        # If the triggering actor does not have write permission (i.e., this is a
+        # PR from a fork), then we exit, otherwise most of the integration tests will
+        # fail because they require access to secrets.  In this case, a maintainer
+        # will need to make sure the PR looks safe, and if so, manually re-run the
+        # failed pull_request_target jobs.
+        run: |
+          echo "User **${{ github.triggering_actor }}** does not have permission to run integration tests." >> $GITHUB_STEP_SUMMARY
+          echo "A maintainer must perform a security review and re-run this build, if the code is safe." >> $GITHUB_STEP_SUMMARY
+          echo "See [Keeping your GitHub Actions and workflows secure Part 1: Preventing pwn requests](https://securitylab.github.com/resources/github-actions-preventing-pwn-requests)." >> $GITHUB_STEP_SUMMARY
+          exit 1
+
+      - name: "Checkout source"
+        uses: "actions/checkout@v4"
 
       - uses: "./.github/actions/install-icepyx"
         with:
