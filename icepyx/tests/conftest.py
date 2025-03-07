@@ -33,10 +33,10 @@ def email():
     return os.environ.get("EARTHDATA_EMAIL")
 
 
-def pytest_configure(config):
-    # append to netrc file and set permissions level
-    args = ("icepyx_devteam", "urs.earthdata.nasa.gov", os.getenv("NSIDC_LOGIN"))
-    netrc_file = os.path.join(os.path.expanduser("~"), ".netrc")
-    with open(netrc_file, "a+") as f:
-        f.write("machine {1} login {0} password {2}\n".format(*args))
-        os.chmod(netrc_file, 0o600)
+# def pytest_configure(config):
+#     # append to netrc file and set permissions level
+#     args = ("icepyx_devteam", "urs.earthdata.nasa.gov", os.getenv("NSIDC_LOGIN"))
+#     netrc_file = os.path.join(os.path.expanduser("~"), ".netrc")
+#     with open(netrc_file, "a+") as f:
+#         f.write("machine {1} login {0} password {2}\n".format(*args))
+#         os.chmod(netrc_file, 0o600)

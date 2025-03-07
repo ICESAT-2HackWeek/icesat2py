@@ -1,0 +1,33 @@
+name: "Integration Download test"
+# NOTE: This runs only integration tests that download data,
+# as denoted by the pytest downloads_data mark.
+
+on:
+  push:
+    branches:
+      - "main"  # Releases
+      - "development"  # Feature PR merges
+
+jobs:
+  test:
+    name: "Download Data Tests"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: "actions/checkout@v4"
+
+      - uses: "./.github/actions/install-icepyx"
+        with:
+          python-version: "3.12"
+
+      - name: "Run download tests"
+        env:
+          EARTHDATA_PASSWORD: "${{ secrets.EARTHDATA_PASSWORD }}"
+          NSIDC_LOGIN: "${{ secrets.EARTHDATA_PASSWORD }}"
+        run: |
+          pytest icepyx/tests/integration --verbose --cov app -m "downloads_data"
+
+      - name: "Upload coverage report"
+        uses: "codecov/codecov-action@v5.4.0"
+        with:
+          token: "${{ secrets.CODECOV_TOKEN }}"
