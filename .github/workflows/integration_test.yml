@@ -1,6 +1,15 @@
 name: "Integration test"
-# NOTE: We're just running the tests that require earthdata login here; we
-#       don't distinguish between unit and integration tests yet.
+# NOTE: This runs all integration tests except those that download data.
+# It will not automatically run integration tests (some of which require auth)
+# on PRs from forks.
+# Integration tests that download data are run separately.
+
+
+#NEXT STEPS: try to debug locally... get testing of test_auth working again (might need to keep config settings)
+# then see if can also get integration tests to run ignoring marked tests
+# then try and scale it to the action
+# something got messed up with the transition from Travis to GH (surprise!)
+
 
 on:
   push:
@@ -10,6 +19,7 @@ on:
   pull_request:
     branches:
       - "main"  # Release PRs
+      - "development" # Feature PRs
   workflow_dispatch:
     inputs:
       ref:
@@ -34,12 +44,17 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: "Run tests"
+      - name: "Run [mocked] auth tests"
+        run: |
+          pytest icepyx/tests/integration/test_auth.py --verbose --cov app
+
+      - name: "Run non-auth tests"
         env:
+          EARTHDATA_USERNAME: "icepyx_devteam"
           EARTHDATA_PASSWORD: "${{ secrets.EARTHDATA_PASSWORD }}"
           NSIDC_LOGIN: "${{ secrets.EARTHDATA_PASSWORD }}"
         run: |
-          pytest icepyx/tests/integration --verbose --cov app
+          pytest icepyx/tests/integration --verbose --cov app -m "not downloads_data" --ignore=icepyx/tests/integration/test_auth.py
 
       - name: "Upload coverage report"
         uses: "codecov/codecov-action@v5.4.0"

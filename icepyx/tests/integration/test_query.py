@@ -1,5 +1,5 @@
 """
-Integration tests that require authentication to Earthdata login.
+Integration tests
 """
 
 import glob
@@ -10,15 +10,6 @@ import pytest
 
 import icepyx as ipx
 import icepyx.core.is2ref as is2ref
-
-# Skip the whole module. See:
-# https://docs.pytest.org/en/stable/reference/reference.html#globalvar-pytestmark
-pytestmark = pytest.mark.xfail(
-    reason=(
-        "The back-end API on which these tests depend, ECS/EGI/ESI, is scheduled for"
-        " shutdown in late 2024. At that point, these tests will begin failing."
-    )
-)
 
 # Misc notes and needed tests
 # test avail data and subsetting success for each input type
@@ -57,12 +48,14 @@ def test_get_custom_options_output(session):
 
 ########## query module ##########
 # NOTE: best this test can do at the moment is a successful download with no errors...
+@pytest.mark.downloads_data
 def test_download_granules_with_subsetting(reg, session):
     path = "./downloads_subset"
     reg.order_granules()
     reg.download_granules(path)
 
 
+@pytest.mark.downloads_data
 def test_download_granules_without_subsetting(reg, session, capsys):
     """
     Test that granules can be ordered from NSIDC and downloaded with the `subset=False`
