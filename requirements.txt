@@ -1,11 +1,13 @@
 backoff
 dask[dataframe] <2025.1.0
 datashader
-earthaccess>=0.5.1
+deprecated
+earthaccess>=0.12.0
 fiona
 geopandas
 h5netcdf
 h5py
+harmony-py>=1.0.0
 holoviews
 hvplot
 matplotlib

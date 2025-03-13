@@ -120,6 +120,9 @@ venv.bak/
 *.zarr
 *.tif
 
+# harmony orders
+.order_restart
+
 # data file exception for tracking info
 !clones.csv
 !views.csv
