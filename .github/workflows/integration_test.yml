@@ -10,10 +10,6 @@ on:
     branches:
       - "main"         # Release PRs
       - "development"  # Feature PRs
-  pull_request_target:
-    branches:
-      - "main"         # Release PRs
-      - "development"  # Feature PRs
   push:
     branches:
       - "main"         # Releases
@@ -28,23 +24,6 @@ concurrency:
 jobs:
   test:
     name: "Integration test"
-    # This condition prevents DUPLICATE attempts to run integration tests for
-    # PRs originating from forks.
-    #
-    # When a PR originates from a fork, both a pull_request and a
-    # pull_request_target event are triggered.  This means that without a
-    # condition, GitHub will attempt to run integration tests TWICE, once for
-    # each event.
-    #
-    # To prevent this, this condition ensures that integration tests are run
-    # in only ONE of the following cases:
-    #
-    #   1. The event is NOT a pull_request.  This covers the case when the event
-    #      is a pull_request_target (i.e., a PR from a fork), as well as all
-    #      other cases listed in the "on" block at the top of this file.
-    #   2. The event IS a pull_request AND the base repo and head repo are the
-    #      same (i.e., the PR is NOT from a fork).
-    if: github.event_name != 'pull_request' || github.event.pull_request.base.repo.full_name == github.event.pull_request.head.repo.full_name
     runs-on: "ubuntu-latest"
 
     steps:
