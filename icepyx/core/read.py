@@ -593,9 +593,18 @@ class Read(EarthdataAuthMixin):
                 s3 = earthaccess.get_s3fs_session(daac="NSIDC")
                 file = s3.open(file, "rb")
 
-            all_dss.append(
-                self._build_single_file_dataset(file, groups_list)
-            )  # wanted_groups, vgrp.keys()))
+            try:
+                all_dss.append(
+                    self._build_single_file_dataset(file, groups_list)
+                )  # wanted_groups, vgrp.keys()))
+            except OSError as oe:
+                warnings.warn(
+                    f"{file} is excluded from this dataset because it"
+                    "did not contain all wanted variable groups,"
+                    f"causing the following error: {oe}",
+                    stacklevel=2,
+                )
+                continue
 
             # Closing the file prevents further operations on the dataset
             # from s3fs.core import S3File
