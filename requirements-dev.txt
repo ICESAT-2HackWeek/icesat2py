@@ -1,3 +1,4 @@
+mypy
 pandas-stubs
 pre-commit
 pypistats
@@ -5,6 +6,7 @@ pyright
 pytest>=4.6
 pytest-cov
 responses
+ruff
 types-docutils
 types-requests
 types-tqdm

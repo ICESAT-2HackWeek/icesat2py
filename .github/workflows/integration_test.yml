@@ -56,10 +56,11 @@ jobs:
 
       - name: "Run auth tests"
         env:
+          EARTHDATA_USERNAME: "icepyx_devteam"
           EARTHDATA_PASSWORD: "${{ secrets.EARTHDATA_PASSWORD }}"
           NSIDC_LOGIN: "${{ secrets.EARTHDATA_PASSWORD }}"
         run: |
-          pytest icepyx/tests/integration --verbose --cov app -m "not downloads_data"
+          pytest -s icepyx/tests/integration --verbose --cov app
 
       - name: "Upload coverage report"
         uses: "codecov/codecov-action@v5.4.0"

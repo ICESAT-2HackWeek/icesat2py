@@ -1,6 +1,7 @@
 import os
 import warnings
 
+from deprecated import deprecated
 import geopandas as gpd
 import numpy as np
 from shapely.geometry import Polygon, box
@@ -648,8 +649,10 @@ class Spatial:
 
         return cmr_extent
 
+    @deprecated("Use fmt_for_CMR instead")
     def fmt_for_EGI(self):
         """
+        WARNING: This method is deprecated. Use fmt_for_CMR instead.
         Format the spatial extent input into a subsetting key value for submission to EGI (the NSIDC DAAC API).
 
         EGI spatial inputs must be formatted a specific way.
@@ -660,18 +663,6 @@ class Spatial:
         Returns
         -------
         string
-            Properly formatted json string for submission to EGI (NSIDC API).
+            Properly formatted json string for submission to CMR
         """
-
-        # subsetting keywords: ['bbox','Boundingshape'] - these are set in APIformatting
-        if self._ext_type == "bounding_box":
-            egi_extent = ",".join(map(str, self._spatial_ext))
-
-        # TODO: add handling for polygons that cross the dateline
-        elif self._ext_type == "polygon":
-            poly = self.extent_as_gdf.geometry[0]
-            poly = orient(poly, sign=1.0)
-            egi_extent = gpd.GeoSeries(poly).to_json()
-            egi_extent = egi_extent.replace(" ", "")  # remove spaces for API call
-
-        return egi_extent
+        return self.fmt_for_CMR()

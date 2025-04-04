@@ -1,13 +1,13 @@
 """Generate and format information for submitting to API (CMR and NSIDC)."""
 
 import datetime as dt
-from typing import Any, Generic, Literal, Optional, TypeVar, Union, overload
+from typing import Any, Generic, Literal, Optional, TypeVar, Union
 
 from icepyx.core.exceptions import ExhaustiveTypeGuardException, TypeGuardException
 from icepyx.core.types import (
     CMRParams,
-    EGIParamsSubset,
-    EGIRequiredParams,
+    CMRParamsWithBbox,
+    CMRParamsWithPolygon,
 )
 
 # ----------------------------------------------------------------------
@@ -200,32 +200,11 @@ class _FmtedKeysDescriptor:
     See: https://github.com/microsoft/pyright/issues/3071#issuecomment-1043978070
     """
 
-    @overload
-    def __get__(
-        self,
-        instance: 'Parameters[Literal["CMR"]]',
-        owner: Any,
-    ) -> CMRParams: ...
-
-    @overload
-    def __get__(
-        self,
-        instance: 'Parameters[Literal["required"]]',
-        owner: Any,
-    ) -> EGIRequiredParams: ...
-
-    @overload
-    def __get__(
-        self,
-        instance: 'Parameters[Literal["subset"]]',
-        owner: Any,
-    ) -> EGIParamsSubset: ...
-
     def __get__(
         self,
         instance: "Parameters",
         owner: Any,
-    ) -> Union[CMRParams, EGIRequiredParams, EGIParamsSubset]:
+    ) -> Union[CMRParams, CMRParamsWithBbox, CMRParamsWithPolygon, dict[str, Any]]:
         """
         Returns the dictionary of formatted keys associated with the
         parameter object.
@@ -259,7 +238,6 @@ class Parameters(Generic[T]):
     partype: T
     _reqtype: Optional[Literal["search", "download"]]
     fmted_keys = _FmtedKeysDescriptor()
-    # _fmted_keys: Union[CMRParams, EGISpecificRequiredParams, EGIParamsSubset]
 
     def __init__(
         self,
@@ -425,6 +403,9 @@ class Parameters(Generic[T]):
             kwargs = {}
         else:
             self._check_valid_keys()
+
+        if "concept_id" in kwargs:
+            self._fmted_keys.update({"concept_id": kwargs["concept_id"]})
 
         if self.partype == "required":
             if not self._reqtype:

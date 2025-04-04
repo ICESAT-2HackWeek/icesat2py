@@ -1,4 +1,5 @@
 gitpython
+jupyterlab
 linkify-it-py
 myst-nb
 nbsphinx

@@ -1,3 +1,5 @@
+import os
+
 import pytest
 import requests
 
@@ -10,6 +12,9 @@ def auth_instance():
     An EarthdatAuthMixin object for each of the tests. Default scope is function
     level, so a new instance should be created for each of the tests.
     """
+    if os.environ.get("EARTHDATA_USERNAME") is None:
+        print("Warning: EARTHDATA_USERNAME not set. Using default for testing.")
+        os.environ["EARTHDATA_USERNAME"] = "icepyx_devteam"
     return EarthdataAuthMixin()
 
 

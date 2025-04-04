@@ -1,15 +1,24 @@
 import json
+import logging
 import warnings
-from xml.etree import ElementTree as ET
 
+from deprecated import deprecated
 import earthaccess
 import h5py
 import numpy as np
 import requests
 
-from icepyx.core.urls import COLLECTION_SEARCH_BASE_URL, EGI_BASE_URL
+from icepyx.core.urls import COLLECTION_SEARCH_BASE_URL
 
 # ICESat-2 specific reference functions
+
+
+def _get_concept_id(product, version):
+    collections = earthaccess.search_datasets(
+        short_name=product, version=version, cloud_hosted=True
+    )
+    if collections:
+        return collections[0].concept_id()
 
 
 def _validate_product(product):
@@ -89,83 +98,15 @@ def about_product(prod):
 
 # DevGoal: use a mock of this output to test later functions, such as displaying options and widgets, etc.
 # options to get customization options for ICESat-2 data (though could be used generally)
+@deprecated(
+    version="1.4.0", reason="order_vars() is going away, use variables() instead"
+)
 def _get_custom_options(session, product, version):
     """
     Get lists of what customization options are available for the product from NSIDC.
     """
-    cust_options = {}
-
-    # flagging for update/removal given removal of `.earthdata_login()`
-    if session is None:
-        raise ValueError(
-            "Don't forget to log in to Earthdata using query.earthdata_login()"
-        )
-
-    capability_url = f"{EGI_BASE_URL}/capabilities/{product}.{version}.xml"
-    response = session.get(capability_url)
-    root = ET.fromstring(response.content)
-
-    # collect lists with each service option
-    subagent = [subset_agent.attrib for subset_agent in root.iter("SubsetAgent")]
-    cust_options.update({"options": subagent})
-
-    # reformatting
-    formats = [Format.attrib for Format in root.iter("Format")]
-    format_vals = [formats[i]["value"] for i in range(len(formats))]
-    try:
-        format_vals.remove("")
-    except KeyError:
-        # ATL23 does not have an empty value
-        pass
-    cust_options.update({"fileformats": format_vals})
-
-    # reprojection only applicable on ICESat-2 L3B products.
-
-    # reprojection options
-    projections = [Projection.attrib for Projection in root.iter("Projection")]
-    proj_vals = []
-    for i in range(len(projections)):
-        if (projections[i]["value"]) != "NO_CHANGE":
-            proj_vals.append(projections[i]["value"])
-    cust_options.update({"reprojectionONLY": proj_vals})
-
-    # reformatting options that do not support reprojection
-    exclformats_all = []
-    for i in range(len(projections)):
-        if "excludeFormat" in projections[i]:
-            exclformats_str = projections[i]["excludeFormat"]
-            exclformats_all.append(exclformats_str.split(","))
-    exclformats_list = [
-        item for sublist in exclformats_all for item in sublist
-    ]  # list only unique formats
-    no_proj = list(set(exclformats_list))
-    cust_options.update({"noproj": no_proj})
-
-    # reformatting options that support reprojection
-    format_proj = []
-    for i in range(len(format_vals)):
-        if format_vals[i] not in no_proj:
-            format_proj.append(format_vals[i])
-    cust_options.update({"formatreproj": format_proj})
-
-    # variable subsetting
-    vars_raw = []
-
-    def get_varlist(elem):
-        childlist = list(elem)
-        if len(childlist) == 0 and elem.tag == "SubsetVariable":
-            vars_raw.append(elem.attrib["value"])
-        for child in childlist:
-            get_varlist(child)
-
-    get_varlist(root)
-    vars_vals = [
-        v.replace(":", "/") if v.startswith("/") is False else v.replace("/:", "")
-        for v in vars_raw
-    ]
-    cust_options.update({"variables": vars_vals})
-
-    return cust_options
+    logging.warning("Deprecated: No longer needed for Harmony subsetting")
+    return {}
 
 
 # DevGoal: populate this with default variable lists for all of the products!

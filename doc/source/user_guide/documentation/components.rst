@@ -27,10 +27,26 @@ granules
    :undoc-members:
    :show-inheritance:
 
+harmony
+-------
+
+.. automodule:: icepyx.core.harmony
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 is2ref
 ------
 
 .. automodule:: icepyx.core.is2ref
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+orders
+------
+
+.. automodule:: icepyx.core.orders
    :members:
    :undoc-members:
    :show-inheritance:

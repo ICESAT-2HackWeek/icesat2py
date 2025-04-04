@@ -21,7 +21,7 @@ Attributes
 
    Read.filelist
    Read.product
-   Read.vars
+   Read.variables
 
 
 Methods

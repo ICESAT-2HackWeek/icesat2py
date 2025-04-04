@@ -40,8 +40,7 @@ jobs:
 
       - name: "Run tests"
         run: |
-          pytest icepyx/ --verbose --cov app \
-            --ignore=icepyx/tests/integration
+          pytest icepyx/tests/unit --verbose --cov app
 
       - name: "Upload coverage report"
         uses: "codecov/codecov-action@v5.4.0"

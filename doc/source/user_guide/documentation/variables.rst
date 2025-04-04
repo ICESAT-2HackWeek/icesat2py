@@ -13,6 +13,17 @@ Constructor
    Variables
 
 
+Attributes
+----------
+
+.. autosummary::
+   :toctree: ../../_icepyx/
+
+   Variables.path
+   Variables.product
+   Variables.version
+
+
 Methods
 -------
 
